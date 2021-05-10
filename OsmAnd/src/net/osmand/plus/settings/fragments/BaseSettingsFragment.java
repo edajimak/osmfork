@@ -60,6 +60,7 @@ import net.osmand.plus.activities.OsmandActionBarActivity;
 import net.osmand.plus.activities.OsmandInAppPurchaseActivity;
 import net.osmand.plus.audionotes.MultimediaNotesFragment;
 import net.osmand.plus.development.DevelopmentSettingsFragment;
+import net.osmand.plus.lrrp.LrrpSettingsFragment;
 import net.osmand.plus.monitoring.MonitoringSettingsFragment;
 import net.osmand.plus.openplacereviews.OprSettingsFragment;
 import net.osmand.plus.osmedit.OsmEditingFragment;
@@ -131,6 +132,7 @@ public abstract class BaseSettingsFragment extends PreferenceFragmentCompat impl
 		PROFILE_APPEARANCE(ProfileAppearanceFragment.TAG, true, null, R.xml.profile_appearance, R.layout.profile_preference_toolbar),
 		OPEN_STREET_MAP_EDITING(OsmEditingFragment.class.getName(), false, null, R.xml.osm_editing, R.layout.global_preference_toolbar),
 		MULTIMEDIA_NOTES(MultimediaNotesFragment.class.getName(), true, ApplyQueryType.SNACK_BAR, R.xml.multimedia_notes, R.layout.profile_preference_toolbar),
+		LRRP_SETTINGS(LrrpSettingsFragment.class.getName(), true, ApplyQueryType.SNACK_BAR, R.xml.lrrp_settings, R.layout.profile_preference_toolbar),
 		MONITORING_SETTINGS(MonitoringSettingsFragment.class.getName(), true, ApplyQueryType.SNACK_BAR, R.xml.monitoring_settings, R.layout.profile_preference_toolbar),
 		LIVE_MONITORING(LiveMonitoringFragment.class.getName(), false, ApplyQueryType.SNACK_BAR, R.xml.live_monitoring, R.layout.global_preferences_toolbar_with_switch),
 		ACCESSIBILITY_SETTINGS(AccessibilitySettingsFragment.class.getName(), true, ApplyQueryType.SNACK_BAR, R.xml.accessibility_settings, R.layout.profile_preference_toolbar),

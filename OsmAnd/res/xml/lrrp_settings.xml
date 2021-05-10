@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:title="@string/plugin_lrrp_config">
+
+	<PreferenceCategory
+		android:key="photo_notes"
+		android:layout="@layout/preference_category_with_descr"
+		android:title="@string/plugin_lrrp_config" />
+
+	<net.osmand.plus.settings.preferences.EditTextPreferenceEx
+		android:key="lrrp_connection_config"
+		android:layout="@layout/preference_with_descr"
+		android:summary="@string/plugin_lrrp_config_descr"
+		android:title="@string/plugin_lrrp_config_title" />
+
+</PreferenceScreen>
