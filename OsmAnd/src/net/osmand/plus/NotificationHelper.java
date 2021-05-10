@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
 
+import net.osmand.plus.lrrp.LrrpNotification;
 import net.osmand.plus.notifications.DownloadNotification;
 import net.osmand.plus.notifications.ErrorNotification;
 import net.osmand.plus.notifications.GpxNotification;
@@ -28,6 +29,7 @@ public class NotificationHelper {
 
 	private NavigationNotification navigationNotification;
 	private GpxNotification gpxNotification;
+	private LrrpNotification lrrpNotification;
 	private DownloadNotification downloadNotification;
 	private ErrorNotification errorNotification;
 	private List<OsmandNotification> all = new ArrayList<>();
@@ -42,9 +44,12 @@ public class NotificationHelper {
 		gpxNotification = new GpxNotification(app);
 		downloadNotification = new DownloadNotification(app);
 		errorNotification = new ErrorNotification(app);
+		lrrpNotification = new LrrpNotification(app);
+
 		all.add(navigationNotification);
 		all.add(gpxNotification);
 		all.add(downloadNotification);
+		all.add(lrrpNotification);
 	}
 
 	public Notification buildTopNotification() {
@@ -80,6 +85,8 @@ public class NotificationHelper {
 			return navigationNotification;
 		} else if (gpxNotification.isEnabled() && gpxNotification.isActive()) {
 			return gpxNotification;
+		} else if (lrrpNotification.isEnabled() && lrrpNotification.isActive()) {
+			return lrrpNotification;
 		} else {
 			return null;
 		}

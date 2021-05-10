@@ -58,6 +58,7 @@ import net.osmand.plus.R;
 import net.osmand.plus.activities.MapActivity;
 import net.osmand.plus.activities.MapActivityActions;
 import net.osmand.plus.helpers.AndroidUiHelper;
+import net.osmand.plus.lrrp.LrrpPoint;
 import net.osmand.plus.mapcontextmenu.MapContextMenu;
 import net.osmand.plus.mapcontextmenu.controllers.TransportStopController;
 import net.osmand.plus.mapcontextmenu.other.MapMultiSelectionMenu;
@@ -786,8 +787,17 @@ public class ContextMenuLayer extends OsmandMapLayer {
 				return true;
 			}
 		}
+
+		boolean needToRenderWhere = false;
+		for (Object o : selectedObjects.keySet()) {
+			if (o instanceof LrrpPoint) {
+				needToRenderWhere = true;
+				break;
+			}
+		}
+
 		processTransportStops(selectedObjects, pointLatLon);
-		if (selectedObjects.size() == 1) {
+		if (selectedObjects.size() == 1 && !needToRenderWhere) {
 			Object selectedObj = selectedObjects.keySet().iterator().next();
 			LatLon latLon = objectLatLon;
 			PointDescription pointDescription = null;
@@ -810,7 +820,7 @@ public class ContextMenuLayer extends OsmandMapLayer {
 			}
 			return true;
 
-		} else if (selectedObjects.size() > 1) {
+		} else if (selectedObjects.size() > 1 || needToRenderWhere) {
 			hideVisibleMenues();
 			selectedObjectContextMenuProvider = null;
 			showContextMenuForSelectedObjects(pointLatLon, selectedObjects);

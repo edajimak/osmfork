@@ -79,6 +79,7 @@ import net.osmand.plus.quickaction.QuickActionRegistry;
 import net.osmand.plus.render.RendererRegistry;
 import net.osmand.plus.resources.ResourceManager;
 import net.osmand.plus.routepreparationmenu.RoutingOptionsHelper;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.routing.RoutingHelper;
 import net.osmand.plus.routing.TransportRoutingHelper;
 import net.osmand.plus.search.QuickSearchHelper;
@@ -503,7 +504,8 @@ public class OsmandApplication extends MultiDexApplication {
 	}
 
 	public void initVoiceCommandPlayer(final Activity uiContext, final ApplicationMode applicationMode,
-	                                   boolean warningNoneProvider, Runnable run, boolean showDialog, boolean force, final boolean applyAllModes) {
+									   boolean warningNoneProvider, Runnable run, boolean showDialog,
+									   boolean force, final boolean applyAllModes, MutableVoiceAware voiceAware) {
 		String voiceProvider = osmandSettings.VOICE_PROVIDER.getModeValue(applicationMode);
 		if (voiceProvider == null || OsmandSettings.VOICE_PROVIDER_NOT_USE.equals(voiceProvider)) {
 			if (warningNoneProvider && voiceProvider == null) {
@@ -512,10 +514,16 @@ public class OsmandApplication extends MultiDexApplication {
 				}
 			}
 		} else {
-			if (player == null || !Algorithms.objectEquals(voiceProvider, player.getCurrentVoice()) || force) {
-				appInitializer.initVoiceDataInDifferentThread(uiContext, applicationMode, voiceProvider, run, showDialog);
+			MutableVoiceAware voiceMute = voiceAware != null ? voiceAware : getRoutingHelper().getVoiceRouter();
+			if (player == null || !Algorithms.objectEquals(voiceProvider, player.getCurrentVoice()) || force || voiceMute != player.getCurrentVoiceAware()) {
+				appInitializer.initVoiceDataInDifferentThread(uiContext, applicationMode, voiceProvider, run, showDialog, voiceMute);
 			}
 		}
+	}
+
+	public void initVoiceCommandPlayer(final Activity uiContext, final ApplicationMode applicationMode,
+									   boolean warningNoneProvider, Runnable run, boolean showDialog, boolean force, final boolean applyAllModes) {
+		initVoiceCommandPlayer(uiContext, applicationMode, warningNoneProvider, run, showDialog, force, applyAllModes, null);
 	}
 
 	public NavigationService getNavigationService() {

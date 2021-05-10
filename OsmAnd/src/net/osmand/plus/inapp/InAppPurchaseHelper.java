@@ -311,9 +311,10 @@ public abstract class InAppPurchaseHelper {
 					parameters.put("preferredCountry", countryDownloadName);
 					parameters.put("email", email);
 					addUserInfo(parameters);
-					return AndroidNetworkUtils.sendRequest(ctx,
-							"https://osmand.net/subscription/register",
-							parameters, "Requesting userId...", true, true);
+					return null;
+//					return AndroidNetworkUtils.sendRequest(ctx,
+//							"https://osmand.net/subscription/register",
+//							parameters, "Requesting userId...", true, true);
 
 				} catch (Exception e) {
 					logError("sendRequest Error", e);

@@ -42,7 +42,7 @@ import static net.osmand.plus.routing.data.AnnounceTimeDistances.STATE_TURN_IN;
 import static net.osmand.plus.routing.data.AnnounceTimeDistances.STATE_TURN_NOW;
 
 
-public class VoiceRouter {
+public class VoiceRouter implements MutableVoiceAware {
 	private static final int STATUS_UTWP_TOLD = -1;
 	private static final int STATUS_UNKNOWN = 0;
 	private static final int STATUS_LONG_PREPARE = 1;
@@ -86,6 +86,10 @@ public class VoiceRouter {
 	private VoiceCommandPending pendingCommand = null;
 	private RouteDirectionInfo nextRouteDirection;
 
+	@Override
+	public boolean isMute() {
+		return settings.VOICE_MUTE.get();
+	}
 
 	public interface VoiceMessageListener {
 		void onVoiceMessage(List<String> listCommands, List<String> played);
@@ -157,10 +161,6 @@ public class VoiceRouter {
 
 	public void setMuteForMode(ApplicationMode mode, boolean mute) {
 		settings.VOICE_MUTE.setModeValue(mode, mute);
-	}
-
-	public boolean isMute() {
-		return settings.VOICE_MUTE.get();
 	}
 
 	public boolean isMuteForMode(ApplicationMode mode) {

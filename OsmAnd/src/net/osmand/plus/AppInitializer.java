@@ -57,6 +57,7 @@ import net.osmand.plus.render.NativeOsmandLibrary;
 import net.osmand.plus.render.RendererRegistry;
 import net.osmand.plus.resources.ResourceManager;
 import net.osmand.plus.routepreparationmenu.RoutingOptionsHelper;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.routing.RoutingHelper;
 import net.osmand.plus.routing.TransportRoutingHelper;
 import net.osmand.plus.search.QuickSearchHelper;
@@ -608,7 +609,8 @@ public class AppInitializer implements IProgress {
 															final ApplicationMode applicationMode,
 															final String voiceProvider,
 															final Runnable run,
-															boolean showDialog) {
+															boolean showDialog,
+															final MutableVoiceAware voiceAware) {
 
 		final ProgressDialog dlg = showDialog ? ProgressDialog.show(uiContext, app.getString(R.string.loading_data),
 				app.getString(R.string.voice_data_initializing)) : null;
@@ -623,14 +625,15 @@ public class AppInitializer implements IProgress {
 					if (!voiceDir.exists()) {
 						throw new CommandPlayerException(ctx.getString(R.string.voice_data_unavailable));
 					}
+					MutableVoiceAware voiceMute = voiceAware != null ? voiceAware : osmandApplication.getRoutingHelper().getVoiceRouter();
 					if (JSTTSCommandPlayerImpl.isMyData(voiceDir)) {
-						return new JSTTSCommandPlayerImpl(ctx, applicationMode, osmandApplication.getRoutingHelper().getVoiceRouter(), voiceProvider);
+						return new JSTTSCommandPlayerImpl(ctx, applicationMode, voiceMute, voiceProvider);
 					} else if (JSMediaCommandPlayerImpl.isMyData(voiceDir)) {
-						return new JSMediaCommandPlayerImpl(osmandApplication, applicationMode, osmandApplication.getRoutingHelper().getVoiceRouter(), voiceProvider);
+						return new JSMediaCommandPlayerImpl(osmandApplication, applicationMode, voiceMute, voiceProvider);
 					} else if (TTSCommandPlayerImpl.isMyData(voiceDir)) {
-						return new TTSCommandPlayerImpl(ctx, applicationMode, osmandApplication.getRoutingHelper().getVoiceRouter(), voiceProvider);
+						return new TTSCommandPlayerImpl(ctx, applicationMode, voiceMute, voiceProvider);
 					} else if (MediaCommandPlayerImpl.isMyData((voiceDir))) {
-						return new MediaCommandPlayerImpl(osmandApplication, applicationMode, osmandApplication.getRoutingHelper().getVoiceRouter(), voiceProvider);
+						return new MediaCommandPlayerImpl(osmandApplication, applicationMode, voiceMute, voiceProvider);
 					}
 					throw new CommandPlayerException(ctx.getString(R.string.voice_data_not_supported));
 				}

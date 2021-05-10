@@ -33,6 +33,7 @@ import net.osmand.plus.development.OsmandDevelopmentPlugin;
 import net.osmand.plus.dialogs.PluginDisabledBottomSheet;
 import net.osmand.plus.dialogs.PluginInstalledBottomSheetDialog;
 import net.osmand.plus.download.IndexItem;
+import net.osmand.plus.lrrp.LrrpOsmandPlugin;
 import net.osmand.plus.mapcontextmenu.MenuBuilder;
 import net.osmand.plus.mapcontextmenu.MenuController;
 import net.osmand.plus.mapcontextmenu.builders.cards.ImageCard;
@@ -285,6 +286,8 @@ public abstract class OsmandPlugin {
 		checkMarketPlugin(app, enabledPlugins, new NauticalMapsPlugin(app));
 		checkMarketPlugin(app, enabledPlugins, new SkiMapsPlugin(app));
 		allPlugins.add(new AudioVideoNotesPlugin(app));
+		allPlugins.add(new LrrpOsmandPlugin(app));
+
 		checkMarketPlugin(app, enabledPlugins, new ParkingPositionPlugin(app));
 		allPlugins.add(new OsmEditingPlugin(app));
 		enablePluginByDefault(app, enabledPlugins, new OpenPlaceReviewsPlugin(app));

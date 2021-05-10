@@ -6,10 +6,10 @@ import android.media.MediaPlayer;
 import android.os.Build;
 
 import net.osmand.PlatformUtil;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.settings.backend.OsmandPreference;
-import net.osmand.plus.routing.VoiceRouter;
 
 import org.apache.commons.logging.Log;
 
@@ -35,14 +35,18 @@ public class MediaCommandPlayerImpl extends AbstractPrologCommandPlayer implemen
 	MediaPlayer mediaPlayer;
 	// indicates that player is ready to play first file
 	List<String> filesToPlay = Collections.synchronizedList(new ArrayList<String>());
-	VoiceRouter vrt;
+	MutableVoiceAware vrt;
 
-	
-	public MediaCommandPlayerImpl(OsmandApplication ctx, ApplicationMode applicationMode, VoiceRouter vrt, String voiceProvider)
+	public MediaCommandPlayerImpl(OsmandApplication ctx, ApplicationMode applicationMode, MutableVoiceAware vrt, String voiceProvider)
 		throws CommandPlayerException
 	{
 		super(ctx, applicationMode, voiceProvider, CONFIG_FILE, MEDIA_VOICE_VERSION);
 		this.vrt = vrt;
+	}
+
+	@Override
+	public MutableVoiceAware getCurrentVoiceAware() {
+		return vrt;
 	}
 	
 	@Override
