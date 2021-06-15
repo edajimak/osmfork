@@ -5,16 +5,21 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 
 import net.osmand.Location;
+import net.osmand.StateChangedListener;
+import net.osmand.plus.NavigationService;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.OsmandPlugin;
 import net.osmand.plus.R;
 import net.osmand.plus.activities.MapActivity;
+import net.osmand.plus.routing.MutableVoiceAware;
+import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.settings.backend.CommonPreference;
 import net.osmand.plus.settings.backend.OsmandSettings;
 import net.osmand.plus.settings.fragments.BaseSettingsFragment;
 import net.osmand.plus.views.OsmandMapTileView;
+import net.osmand.plus.voice.CommandPlayer;
 
-public class LrrpOsmandPlugin extends OsmandPlugin {
+public class LrrpOsmandPlugin extends OsmandPlugin implements MutableVoiceAware, StateChangedListener<Boolean> {
 
     public static final String ID = "lrrp.plugin";
     //private MapActivity mapActivity;
@@ -22,6 +27,9 @@ public class LrrpOsmandPlugin extends OsmandPlugin {
     private final LrrpRequestHelper lrrpRequestHelper;
 
     public final CommonPreference<String> LRRP_CONNECTION_CONFIG;
+    public final CommonPreference<Boolean> LRRP_CONNECTION_PLAY;
+
+    private boolean enabledPlayer = false;
 
     public LrrpOsmandPlugin(@NonNull OsmandApplication app) {
         super(app);
@@ -29,6 +37,35 @@ public class LrrpOsmandPlugin extends OsmandPlugin {
 
         OsmandSettings set = app.getSettings();
         LRRP_CONNECTION_CONFIG = set.registerStringPreference("lrrp_connection_config", null);
+        LRRP_CONNECTION_PLAY = set.registerBooleanPreference("lrrp_connection_play", false);
+    }
+
+    private void initSoundPlayer() {
+        if (LRRP_CONNECTION_PLAY.get() && !enabledPlayer) {
+            ApplicationMode mode = app.getSettings().DEFAULT_APPLICATION_MODE.get();
+            app.initVoiceCommandPlayer(mapLayer.getMapActivity(), mode, true, null, true, true, true, this);
+            enabledPlayer = true;
+            app.startNavigationService(NavigationService.USED_BY_LRRP);
+        }
+
+        if (!LRRP_CONNECTION_PLAY.get()) {
+            enabledPlayer = false;
+            if (app.getNavigationService() != null) {
+                app.getNavigationService().stopIfNeeded(app, NavigationService.USED_BY_LRRP);
+            }
+        }
+    }
+
+    public boolean isEnabledPlayer() {
+        return enabledPlayer;
+    }
+
+    public CommandPlayer getPlayer() {
+        if (!LRRP_CONNECTION_PLAY.get()) {
+            return null;
+        }
+
+        return app.getPlayer();
     }
 
     @Override
@@ -60,6 +97,8 @@ public class LrrpOsmandPlugin extends OsmandPlugin {
 
         mapLayer = new MapLpprLayer(activity, this);
         activity.getMapView().addLayer(mapLayer, 3.5f);
+
+        LRRP_CONNECTION_PLAY.addListener(this);
     }
 
     @Override
@@ -70,6 +109,7 @@ public class LrrpOsmandPlugin extends OsmandPlugin {
             } else if (!mapView.getLayers().contains(mapLayer)) {
                 mapView.addLayer(mapLayer, 3.5f);
             }
+            initSoundPlayer();
             mapView.refreshMap();
         } else {
             if (mapLayer != null) {
@@ -84,6 +124,10 @@ public class LrrpOsmandPlugin extends OsmandPlugin {
         return lrrpRequestHelper;
     }
 
+    public PointsCollection getPoints() {
+        return lrrpRequestHelper.getPoints();
+    }
+
     @Override
     public Drawable getAssetResourceImage() {
         return app.getUIUtilities().getIcon(R.drawable.ski_map);
@@ -92,5 +136,15 @@ public class LrrpOsmandPlugin extends OsmandPlugin {
     @Override
     public BaseSettingsFragment.SettingsScreenType getSettingsScreenType() {
         return BaseSettingsFragment.SettingsScreenType.LRRP_SETTINGS;
+    }
+
+    @Override
+    public boolean isMute() {
+        return !LRRP_CONNECTION_PLAY.get();
+    }
+
+    @Override
+    public void stateChanged(Boolean change) {
+        initSoundPlayer();
     }
 }

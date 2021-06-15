@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
-import net.osmand.StateChangedListener;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.util.Algorithms;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 public class LocaleHelper {
@@ -17,6 +17,7 @@ public class LocaleHelper {
 	private Locale defaultLocale;
 	private Locale preferredLocale;
 	private Resources localizedResources;
+	private HashMap<String, Resources> localizedResourcesLang;
 
 	public LocaleHelper(OsmandApplication app) {
 		this.app = app;
@@ -84,6 +85,18 @@ public class LocaleHelper {
 	public Resources getLocalizedResources() {
 		return localizedResources;
 	}
+
+//	public Resources getLocalizedResources(String lang) {
+//		Locale locale = new Locale(lang);
+//
+//		Configuration config = app.getBaseContext().getResources().getConfiguration();
+//		if (android.os.Build.VERSION.SDK_INT >= 17) {
+//			Configuration conf = new Configuration(config);
+//			conf.locale = locale;
+//			localizedResourcesLang.
+//			localizedResources = app.createConfigurationContext(conf).getResources();
+//		}
+//	}
 
 	public Locale getPreferredLocale() {
 		return preferredLocale;

@@ -14,4 +14,11 @@
 		android:summary="@string/plugin_lrrp_config_descr"
 		android:title="@string/plugin_lrrp_config_title" />
 
+	<net.osmand.plus.settings.preferences.SwitchPreferenceEx
+		android:key="lrrp_connection_play"
+		android:layout="@layout/preference_with_descr_dialog_and_switch"
+		android:summaryOff="@string/shared_string_disabled"
+		android:summaryOn="@string/shared_string_enabled"
+		android:title="@string/plugin_lrrp_play_title" />
+
 </PreferenceScreen>

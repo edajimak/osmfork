@@ -19,7 +19,7 @@ public class MapLpprLayer extends OsmandMapLayer {
     private final LrrpOsmandPlugin plugin;
     private OsmandMapTileView view;
     private Paint bitmapPaint;
-    private Bitmap markerBitmapBlue;
+    private final Bitmap[] markerBitmap = new Bitmap[7];
 
     public MapLpprLayer(MapActivity map, LrrpOsmandPlugin plugin) {
         this.map = map;
@@ -30,7 +30,14 @@ public class MapLpprLayer extends OsmandMapLayer {
         bitmapPaint = new Paint();
         bitmapPaint.setAntiAlias(true);
         bitmapPaint.setFilterBitmap(true);
-        markerBitmapBlue = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_blue);
+
+        markerBitmap[0] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_blue);
+        markerBitmap[1] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_green);
+        markerBitmap[2] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_orange);
+        markerBitmap[3] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_red);
+        markerBitmap[4] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_yellow);
+        markerBitmap[5] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_teal);
+        markerBitmap[6] = BitmapFactory.decodeResource(view.getResources(), R.drawable.map_marker_purple);
     }
 
     @Override
@@ -39,19 +46,27 @@ public class MapLpprLayer extends OsmandMapLayer {
         initUI();
     }
 
+    public MapActivity getMapActivity() {
+        return map;
+    }
+
     @Override
     public void onDraw(Canvas canvas, RotatedTileBox tileBox, DrawSettings settings) {
-        Bitmap bmp = markerBitmapBlue;
+        Bitmap bmp = markerBitmap[0];
         int marginX = bmp.getWidth() / 6;
         int marginY = bmp.getHeight();
 
-        HashMap<Integer, LrrpPoint> points = plugin.getLrrpRequestHelper().getPoints();
-        for(Map.Entry<Integer, LrrpPoint> point : points.entrySet()) {
-            if (!point.getValue().isExpire()) {
-                int locationX = tileBox.getPixXFromLonNoRot(point.getValue().getLongitude());
-                int locationY = tileBox.getPixYFromLatNoRot(point.getValue().getLatitude());
+        synchronized (plugin.getPoints()) {
+            for (PointsBucket pts : plugin.getPoints().toArray()) {
+                if (pts.getLast() == null || pts.getLast().isExpire()) {
+                    continue;
+                }
+                LrrpPoint p = pts.getLast();
+
+                int locationX = tileBox.getPixXFromLonNoRot(p.getLongitude());
+                int locationY = tileBox.getPixYFromLatNoRot(p.getLatitude());
                 canvas.rotate(-tileBox.getRotate(), locationX, locationY);
-                canvas.drawBitmap(bmp, locationX - marginX, locationY - marginY, bitmapPaint);
+                canvas.drawBitmap(markerBitmap[p.getGroup() % 7], locationX - marginX, locationY - marginY, bitmapPaint);
                 canvas.rotate(tileBox.getRotate(), locationX, locationY);
             }
         }

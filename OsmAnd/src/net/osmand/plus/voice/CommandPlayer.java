@@ -1,5 +1,7 @@
 package net.osmand.plus.voice;
 
+import net.osmand.plus.routing.MutableVoiceAware;
+
 import java.util.List;
 
 import alice.tuprolog.Struct;
@@ -23,4 +25,6 @@ public interface CommandPlayer {
     public boolean supportsStructuredStreetNames();
 
 	public void stop();
+
+	MutableVoiceAware getCurrentVoiceAware();
 }

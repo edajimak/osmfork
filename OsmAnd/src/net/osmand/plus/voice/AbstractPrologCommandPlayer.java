@@ -9,6 +9,7 @@ import androidx.core.app.NotificationManagerCompat;
 import net.osmand.IndexConstants;
 import net.osmand.PlatformUtil;
 import net.osmand.StateChangedListener;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.settings.backend.OsmandSettings;
@@ -106,6 +107,11 @@ public abstract class AbstractPrologCommandPlayer implements CommandPlayer, Stat
 
 	public String getLanguage() {
 		return language;
+	}
+
+	@Override
+	public MutableVoiceAware getCurrentVoiceAware() {
+		return null;
 	}
 
 	public String[] getLibraries(){

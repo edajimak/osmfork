@@ -89,6 +89,10 @@ public class CommandBuilder {
 		return listCommands;
 	}
 
+	public void addFromString(String name) {
+		listCommands.add(name);
+	}
+
 	private Struct prepareStruct(String name, Object... args) {
 		checkState();
 		Term[] list = new Term[args.length];

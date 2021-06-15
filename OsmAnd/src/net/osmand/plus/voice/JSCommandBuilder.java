@@ -30,6 +30,10 @@ public class JSCommandBuilder extends CommandBuilder {
         super(commandPlayer);
     }
 
+    public void addFromString(String name) {
+        listStruct.add(name);
+    }
+
     public void setJSContext(ScriptableObject jsScope) {
         jsContext = Context.enter();
         this.jsScope = jsScope;

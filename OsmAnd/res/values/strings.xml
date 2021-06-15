@@ -2371,6 +2371,7 @@
     <string name="plugin_lrrp_config">Lrrp config info</string>
     <string name="plugin_lrrp_config_descr">Lrrp config into JSON format</string>
     <string name="plugin_lrrp_config_title">JSON config</string>
+    <string name="plugin_lrrp_play_title">Sound notification</string>
     <string name="plugin_ski_name">Ski map view</string>
     <string name="plugin_ski_descr">This plugin for OsmAnd puts at your fingertips details of global downhill ski slopes, cross country ski runs, Alpine ski routes, cable cars and ski lifts. Routes and pistes are shown color-coded by difficulty, and depicted in a special \'Winter\' map style which assimilates a snow-colored winter landscape.
 		\n\nActivating this view changes the map style to \'Winter and ski\', showing all landscape features under wintry conditions. This view can be reverted by either de-activating it again here, or by changing the \'Map style\' under \'Configure map\' as desired.

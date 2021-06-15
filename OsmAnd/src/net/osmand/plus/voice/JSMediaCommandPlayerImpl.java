@@ -3,9 +3,9 @@ package net.osmand.plus.voice;
 
 import net.osmand.IndexConstants;
 import net.osmand.PlatformUtil;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.OsmandApplication;
-import net.osmand.plus.routing.VoiceRouter;
 
 import org.mozilla.javascript.ScriptableObject;
 
@@ -25,7 +25,7 @@ public class JSMediaCommandPlayerImpl extends MediaCommandPlayerImpl {
     private ScriptableObject jsScope;
     private OsmandApplication app;
 
-    public JSMediaCommandPlayerImpl(OsmandApplication ctx, ApplicationMode applicationMode, VoiceRouter vrt, String voiceProvider) throws CommandPlayerException {
+    public JSMediaCommandPlayerImpl(OsmandApplication ctx, ApplicationMode applicationMode, MutableVoiceAware vrt, String voiceProvider) throws CommandPlayerException {
         super(ctx, applicationMode, vrt, voiceProvider);
         app = ctx;
         org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();

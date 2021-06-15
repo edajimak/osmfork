@@ -17,7 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import net.osmand.PlatformUtil;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.R;
-import net.osmand.plus.routing.VoiceRouter;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.settings.backend.OsmandPreference;
 import net.osmand.util.Algorithms;
@@ -73,9 +73,9 @@ public class TTSCommandPlayerImpl extends AbstractPrologCommandPlayer {
 	private static String ttsVoiceUsed = "-";
 	private Context mTtsContext;
 	private HashMap<String, String> params = new HashMap<String, String>();
-	private VoiceRouter vrt;
+	private MutableVoiceAware vrt;
 
-	public TTSCommandPlayerImpl(Activity ctx, ApplicationMode applicationMode, VoiceRouter vrt, String voiceProvider)
+	public TTSCommandPlayerImpl(Activity ctx, ApplicationMode applicationMode, MutableVoiceAware vrt, String voiceProvider)
 			throws CommandPlayerException {
 		super((OsmandApplication) ctx.getApplicationContext(), applicationMode, voiceProvider, CONFIG_FILE, TTS_VOICE_VERSION);
 		this.vrt = vrt;
@@ -151,6 +151,11 @@ public class TTSCommandPlayerImpl extends AbstractPrologCommandPlayer {
 			((OsmandApplication) ctx.getApplicationContext()).showToastMessage(bld.toString());
 		}
 		return execute;
+	}
+
+	@Override
+	public MutableVoiceAware getCurrentVoiceAware() {
+		return vrt;
 	}
 
 	@Override
