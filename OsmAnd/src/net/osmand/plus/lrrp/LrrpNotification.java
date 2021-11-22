@@ -78,8 +78,24 @@ public class LrrpNotification extends OsmandNotification {
 		ongoing = true;
 		lastBuiltNoData = false;
 
-		notificationTitle = "LRRP";
+		notificationTitle = "Sound";
 		notificationText = "Enabled";
+		LrrpOsmandPlugin plugin = OsmandPlugin.getPlugin(LrrpOsmandPlugin.class);
+		if (null != plugin) {
+			notificationText = "";
+			LrrpRequestHelper helper = plugin.getLrrpRequestHelper();
+			long currentTime = System.currentTimeMillis()/1000;
+			long delay = currentTime - helper.getWsClientTimeout();
+			if (delay < 60) {
+				notificationText = "del. -" + delay + " s.";
+			}
+
+			LrrpPoint point = helper.getMinDist();
+			if (null != point) {
+				notificationText += " D:" + Math.round(point.dist/10) * 10;
+			}
+		}
+
 
 		final Builder notificationBuilder = createBuilder(wearable)
 				.setContentTitle(notificationTitle)

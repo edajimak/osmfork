@@ -23,6 +23,7 @@ public class LrrpPoint implements LocationPoint {
     public boolean isShort = false;
     public boolean isHeadPoint = true;
     public PointDescription mPointDescription;
+    public double dist = 0;
 
     public LrrpPoint(double latitude, double longitude, int from, int group, int time) {
         this.latitude = latitude;
@@ -86,7 +87,7 @@ public class LrrpPoint implements LocationPoint {
     }
 
     public double getSpeed() {
-        return isShort ? 0 : mSpeed;
+        return mSpeed;
     }
 
     public int getTime() {

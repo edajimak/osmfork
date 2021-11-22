@@ -15,7 +15,7 @@ public class LrrpRequestConfig {
     public int autoDeactivationTimeInterval = 14400;
     public long active;
     public boolean speakStreet = true;
-    public boolean onlyNearest = true;
+    public boolean onlyNearest = false;
     public int nearestRadius = 0;
     public HashMap<Integer, String> aliasMap = new HashMap<>();
 

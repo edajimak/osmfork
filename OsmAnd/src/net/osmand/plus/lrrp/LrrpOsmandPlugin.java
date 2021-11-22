@@ -1,5 +1,6 @@
 package net.osmand.plus.lrrp;
 
+import android.app.Activity;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
@@ -49,6 +50,21 @@ public class LrrpOsmandPlugin extends OsmandPlugin implements MutableVoiceAware,
             app.getNavigationService().stopIfNeeded(app, NavigationService.USED_BY_LRRP);
         }
         lrrpRequestHelper.disable();
+        LRRP_CONNECTION_PLAY.set(false);
+    }
+
+    @Override
+    public boolean init(@NonNull final OsmandApplication app, Activity activity) {
+        super.init(app, activity);
+        setActive(true);
+        lrrpRequestHelper.triggerLrrpLocation(null);
+
+        return true;
+    }
+
+    @Override
+    public int getLogoResourceId() {
+        return R.drawable.ic_plugin_nautical_map;
     }
 
     private void initSoundPlayer() {

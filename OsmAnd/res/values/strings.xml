@@ -2367,7 +2367,7 @@
 		\n\nA special map add-on for OsmAnd will provide all nautical navigation marks and chart symbols, for inland as well as for nearshore navigation. The description of each navigation mark provides the details needed to identify them and their meaning (category, shape, color, sequence, reference, etc.).
 		\n\nTo return to one of OsmAnd\'s conventional map styles, simply either de-activate this plugin again, or change the \'Map style\' under \'Configure map\' as desired.
 	</string>
-    <string name="plugin_lrrp_name">Lrrp see</string>
+    <string name="plugin_lrrp_name">Lrrp map</string>
     <string name="plugin_lrrp_config">Lrrp config info</string>
     <string name="plugin_lrrp_config_descr">Lrrp config into JSON format</string>
     <string name="plugin_lrrp_config_title">JSON config</string>

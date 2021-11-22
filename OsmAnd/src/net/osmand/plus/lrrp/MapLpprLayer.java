@@ -76,7 +76,11 @@ public class MapLpprLayer extends OsmandMapLayer implements IContextMenuProvider
                 int locationX = tileBox.getPixXFromLonNoRot(p.getLongitude());
                 int locationY = tileBox.getPixYFromLatNoRot(p.getLatitude());
                 canvas.rotate(-tileBox.getRotate(), locationX, locationY);
-                canvas.drawBitmap(markerBitmap[p.getGroup() % 7], locationX - marginX, locationY - marginY, bitmapPaint);
+                int group = p.getGroup();
+                if (group == 0 && p.getSpeed() > 12) {
+                    group = 1;
+                }
+                canvas.drawBitmap(markerBitmap[group % 7], locationX - marginX, locationY - marginY, bitmapPaint);
                 canvas.rotate(tileBox.getRotate(), locationX, locationY);
             }
         }

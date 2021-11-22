@@ -13,11 +13,20 @@ public class PointsCollection {
         PointsBucket defaultBucket = null;
         if (!buckets.containsKey(point.getFrom())) {
             if (point.isShort()) {
+                LrrpPoint expected = pointMapping.get(point.getResolvedFrom());
+                double dist = expected != null ? expected.distance(point) : 10000;
+                double speed = expected != null ? 3.6 * dist/(Math.abs(expected.time-point.time)+0.1) : 1000;
+
                 for (int x: X_GRID) {
                     for (int y: Y_GRID) {
                         int hash = point.calculateCRC(x, y);
                         PointsBucket current = buckets.get(hash);
-                        if (null != current && current.getSpeed(point) < 65) {
+                        LrrpPoint currentP = current != null ? current.getLast() : null;
+                        if (null == currentP || currentP.distance(point) > dist) {
+                            continue;
+                        }
+
+                        if (current.getSpeed(point) < 65) {
                             buckets.remove(hash);
                             buckets.put(point.getFrom(), current);
                             point.setVirtualFrom(current.getFrom());
@@ -28,6 +37,15 @@ public class PointsCollection {
 
                     if (null != defaultBucket) {
                         break;
+                    }
+                }
+
+                if (expected != null && defaultBucket == null) {
+                    PointsBucket expectedBucket = buckets.get(expected.getFrom());
+                    if (null != expectedBucket && speed < 100 && dist < 1500) {
+                        defaultBucket = expectedBucket;
+                        buckets.remove(expected.getFrom());
+                        buckets.put(point.getFrom(), defaultBucket);
                     }
                 }
             }

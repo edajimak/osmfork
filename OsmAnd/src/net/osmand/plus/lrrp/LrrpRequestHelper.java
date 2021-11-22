@@ -61,10 +61,12 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
     private WebSocketClient wsClient;
     private final AtomicBoolean wsClientInit = new AtomicBoolean(false);
     private final AtomicLong wsClientTimeout = new AtomicLong(0);
+    private final AtomicLong wsAlterLastPlay = new AtomicLong(0);
     private final AtomicLong wsClientPing = new AtomicLong(0);
     private final Queue<LrrpPoint> mQueuedEvents = new ConcurrentLinkedQueue<>();
     private String lastHash;
     private long startTime;
+    private LrrpPoint minDistPoint;
     private LrrpRequestConfig config;
 
     private RoutingContext defCtx;
@@ -84,6 +86,14 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         this.plugin = plugin;
     }
 
+    public long getWsClientTimeout() {
+        return wsClientTimeout.get();
+    }
+
+    public LrrpPoint getMinDist() {
+        return minDistPoint;
+    }
+
     public boolean isMonitoringEnabled() {
         return plugin.isActive();
     }
@@ -93,7 +103,10 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
     }
 
     public void triggerLrrpLocation(Location location) {
-        this.lastLocation = location;
+        if (location != null) {
+            this.lastLocation = location;
+        }
+
         if (isMonitoringEnabled()) {
             if (!started) {
                 startTime = System.currentTimeMillis()/1000;
@@ -143,6 +156,11 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
                 if (conf.specWs != null) {
                     try {
+                        if (currentTime - wsClientTimeout.get() > 30 && currentTime - wsAlterLastPlay.get() > 120) {
+                            wsAlterLastPlay.set(currentTime);
+                            playNoWorkAlter();
+                        }
+
                         if (currentTime - wsClientTimeout.get() > 60) {
                             wsClientTimeout.set(currentTime);
                             wsClientInit.set(false);
@@ -160,10 +178,11 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
                 try {
                     processQueuedEvents();
-                    SystemClock.sleep(2500);
                     playRoutes();
+                    SystemClock.sleep(2500);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
+                    SystemClock.sleep(1500);
                 }
 
                 // Auto disable plugin
@@ -178,6 +197,21 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         }
     }
 
+    private void playNoWorkAlter() {
+        CommandPlayer player = plugin.getPlayer();
+        if (null == player) {
+            return;
+        }
+
+        CommandBuilder cb = player.newCommandBuilder();
+        LrrpRequestConfig config = getConfig();
+        TransBuilder trans = new TransBuilder(config.trans);
+        trans.add("plugin")
+            .add("is not works");
+
+        cb.addFromString(trans.trans());
+        cb.play();
+    }
 
     private void processQueuedEvents() {
         if (mQueuedEvents.size() == 0) {
@@ -210,6 +244,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         CommandBuilder cb = player.newCommandBuilder();
         LrrpRequestConfig config = getConfig();
         List<String> commands = new ArrayList<>();
+        double minDist = 10000;
 
         for (PointsBucket pts : plugin.getPoints().toArray()) {
             if (pts.getLast() == null || pts.getLast().isExpire()) {
@@ -221,6 +256,12 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
             LrrpPoint p = pts.getLast();
             double dist = p.distance(lastLocation.getLongitude(), lastLocation.getLatitude());
+            p.dist = dist;
+            if (dist < minDist) {
+                minDistPoint = p;
+                minDist = dist;
+            }
+
             double prevDist = pts.getLastDist();
             pts.setLastDist(dist);
             
@@ -278,21 +319,33 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
         URI uri = new URI(conf.specWs);
         Map<String,String> httpHeaders = new HashMap<>();
-        Matcher match = Pattern.compile("token=(\\w+)").matcher(uri.getQuery());
-        if (match.find()) {
-            String token = match.group(1);
-            httpHeaders.put("Authorization", "Token " + token);
-        }
-
         byte[] border = getBorderParam();
         if (border != null) {
             lastBorder = byteArrayToHex(border);
             httpHeaders.put("X-Var", lastBorder);
         }
 
-        match = Pattern.compile("host=([\\w.-]+)").matcher(uri.getQuery());
-        if (match.find()) {
-            httpHeaders.put("Host", match.group(1));
+        Proxy proxy = null;
+        if (uri.getQuery() != null) {
+            Matcher match = Pattern.compile("token=(\\w+)").matcher(uri.getQuery());
+            if (match.find()) {
+                String token = match.group(1);
+                httpHeaders.put("Authorization", "Token " + token);
+            }
+
+            match = Pattern.compile("host=([\\w.-]+)").matcher(uri.getQuery());
+            if (match.find()) {
+                httpHeaders.put("Host", match.group(1));
+            }
+
+            match = Pattern.compile("proxy=([\\w.\\-:]+)").matcher(uri.getQuery());
+            if (match.find()) {
+                String proxyHost = match.group(1);
+                if (proxyHost != null && !proxyHost.isEmpty()) {
+                    URI proxyUrl = new URI("http://" + proxyHost);
+                    proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyUrl.getHost(), proxyUrl.getPort()));
+                }
+            }
         }
 
         URI serverUri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null);
@@ -324,14 +377,8 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
             }
         };
 
-        match = Pattern.compile("proxy=([\\w.\\-:]+)").matcher(uri.getQuery());
-        if (match.find()) {
-            String proxyHost = match.group(1);
-            if (proxyHost != null && !proxyHost.isEmpty()) {
-                URI proxyUrl = new URI("http://" + proxyHost);
-                Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(proxyUrl.getHost(), proxyUrl.getPort()));
-                wsClient.setProxy(proxy);
-            }
+        if (proxy != null) {
+            wsClient.setProxy(proxy);
 
             // remove dns resolver
             String host = serverUri.getHost();
@@ -525,7 +572,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         payload[0] = 0x11;
         LrrpRequestConfig config = getConfig();
 
-        if (lastLocation == null || config.nearestRadius == 0) {
+        if (lastLocation == null || config.nearestRadius == 0 || config.nearestRadius >= 65000) {
             return null;
         }
 
@@ -581,8 +628,8 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
             if (c.has("autoDeactivationTimeInterval")) {
                 conf.autoDeactivationTimeInterval = c.getInt("autoDeactivationTimeInterval");
             }
-            if (c.has("onlyNearest") && !c.optBoolean("onlyNearest")) {
-                conf.onlyNearest = false;
+            if (c.has("onlyNearest")) {
+                conf.onlyNearest = c.optBoolean("onlyNearest");
             }
             if (c.has("nearestRadius")) {
                 conf.nearestRadius = c.optInt("nearestRadius");

@@ -87,14 +87,12 @@ public class SRTMPlugin extends OsmandPlugin {
 
 	@Override
 	public boolean needsInstallation() {
-		return super.needsInstallation()
-				&& !InAppPurchaseHelper.isContourLinesPurchased(app);
+		return super.needsInstallation();
 	}
 
 	@Override
 	protected boolean pluginAvailable(OsmandApplication app) {
-		return super.pluginAvailable(app)
-				|| InAppPurchaseHelper.isContourLinesPurchased(app);
+		return super.pluginAvailable(app);
 	}
 
 	@Override
@@ -104,7 +102,7 @@ public class SRTMPlugin extends OsmandPlugin {
 
 	@Override
 	public boolean isPaid() {
-		return true;
+		return false;
 	}
 
 	@Override
