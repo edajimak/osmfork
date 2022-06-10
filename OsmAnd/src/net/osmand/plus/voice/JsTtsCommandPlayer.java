@@ -10,6 +10,7 @@ import net.osmand.PlatformUtil;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.R;
 import net.osmand.plus.api.AudioFocusHelperImpl;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.routing.VoiceRouter;
 import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.settings.backend.preferences.OsmandPreference;
@@ -56,7 +57,7 @@ public class JsTtsCommandPlayer extends CommandPlayer {
 
 	protected JsTtsCommandPlayer(@NonNull OsmandApplication app,
 	                             @NonNull ApplicationMode applicationMode,
-	                             @NonNull VoiceRouter voiceRouter,
+	                             @NonNull MutableVoiceAware voiceRouter,
 	                             @NonNull File voiceProviderDir) throws CommandPlayerException {
 		super(app, applicationMode, voiceRouter, voiceProviderDir);
 

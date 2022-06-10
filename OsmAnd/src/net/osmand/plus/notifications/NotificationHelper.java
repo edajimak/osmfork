@@ -9,6 +9,7 @@ import android.content.Context;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.R;
 import net.osmand.plus.auto.CarAppNotification;
+import net.osmand.plus.lrrp.LrrpNotification;
 import net.osmand.plus.notifications.OsmandNotification.NotificationType;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class NotificationHelper {
 	private NavigationNotification navigationNotification;
 	private GpxNotification gpxNotification;
 	private CarAppNotification carAppNotification;
+	private LrrpNotification lrrpNotification;
 	private DownloadNotification downloadNotification;
 	private ErrorNotification errorNotification;
 	private final List<OsmandNotification> all = new ArrayList<>();
@@ -42,10 +44,13 @@ public class NotificationHelper {
 		downloadNotification = new DownloadNotification(app);
 		carAppNotification = new CarAppNotification(app);
 		errorNotification = new ErrorNotification(app);
+		lrrpNotification = new LrrpNotification(app);
+
 		all.add(navigationNotification);
 		all.add(gpxNotification);
 		all.add(downloadNotification);
 		all.add(carAppNotification);
+		all.add(lrrpNotification);
 	}
 
 	public Notification buildTopNotification() {
@@ -81,6 +86,8 @@ public class NotificationHelper {
 			return navigationNotification;
 		} else if (gpxNotification.isEnabled() && gpxNotification.isActive()) {
 			return gpxNotification;
+		} else if (lrrpNotification.isEnabled() && lrrpNotification.isActive()) {
+			return lrrpNotification;
 		} else if (carAppNotification.isEnabled() && carAppNotification.isActive()) {
 			return carAppNotification;
 		} else {

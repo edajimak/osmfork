@@ -383,15 +383,15 @@ public abstract class InAppPurchaseHelper {
 
 	public void requestInventory(boolean userRequested) {
 		notifyShowProgress(InAppPurchaseTaskType.REQUEST_INVENTORY);
-		new RequestInventoryTask(userRequested).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
-		new CheckPromoTask(null).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
+//		new RequestInventoryTask(userRequested).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
+//		new CheckPromoTask(null).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
 	}
 
 	public abstract void purchaseFullVersion(@NonNull final Activity activity) throws UnsupportedOperationException;
 
 	public void purchaseSubscription(@NonNull Activity activity, String sku) {
-		notifyShowProgress(InAppPurchaseTaskType.PURCHASE_SUBSCRIPTION);
-		new SubscriptionPurchaseTask(activity, sku).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
+//		notifyShowProgress(InAppPurchaseTaskType.PURCHASE_SUBSCRIPTION);
+//		new SubscriptionPurchaseTask(activity, sku).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
 	}
 
 	public abstract void purchaseDepthContours(@NonNull final Activity activity) throws UnsupportedOperationException;
@@ -428,9 +428,10 @@ public abstract class InAppPurchaseHelper {
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					addUserInfo(parameters);
-					return AndroidNetworkUtils.sendRequest(ctx,
-							"https://osmand.net/subscription/register",
-							parameters, "Requesting userId...", true, true);
+					return null;
+//					return AndroidNetworkUtils.sendRequest(ctx,
+//							"https://osmand.net/subscription/register",
+//							parameters, "Requesting userId...", true, true);
 
 				} catch (Exception e) {
 					logError("sendRequest Error", e);
@@ -508,29 +509,30 @@ public abstract class InAppPurchaseHelper {
 
 		@Override
 		protected String[] doInBackground(Void... params) {
-			String activeSubscriptionsIds = null;
-			String subscriptionsState = null;
-			try {
-				Map<String, String> parameters = new HashMap<>();
-				parameters.put("androidPackage", ctx.getPackageName());
-				addUserInfo(parameters);
-				activeSubscriptionsIds = AndroidNetworkUtils.sendRequest(ctx,
-						"https://osmand.net/api/subscriptions/active",
-						parameters, "Requesting active subscriptions...", false, false);
-
-				String userId = ctx.getSettings().BILLING_USER_ID.get();
-				String userToken = ctx.getSettings().BILLING_USER_TOKEN.get();
-				if (!Algorithms.isEmpty(userId) && !Algorithms.isEmpty(userToken)) {
-					parameters.put("userId", userId);
-					parameters.put("userToken", userToken);
-					subscriptionsState = AndroidNetworkUtils.sendRequest(ctx,
-							"https://osmand.net/api/subscriptions/get",
-							parameters, "Requesting subscriptions state...", false, false);
-				}
-			} catch (Exception e) {
-				logError("sendRequest Error", e);
-			}
-			return new String[] {activeSubscriptionsIds, subscriptionsState};
+//			String activeSubscriptionsIds = null;
+//			String subscriptionsState = null;
+//			try {
+//				Map<String, String> parameters = new HashMap<>();
+//				parameters.put("androidPackage", ctx.getPackageName());
+//				addUserInfo(parameters);
+//				activeSubscriptionsIds = AndroidNetworkUtils.sendRequest(ctx,
+//						"https://osmand.net/api/subscriptions/active",
+//						parameters, "Requesting active subscriptions...", false, false);
+//
+//				String userId = ctx.getSettings().BILLING_USER_ID.get();
+//				String userToken = ctx.getSettings().BILLING_USER_TOKEN.get();
+//				if (!Algorithms.isEmpty(userId) && !Algorithms.isEmpty(userToken)) {
+//					parameters.put("userId", userId);
+//					parameters.put("userToken", userToken);
+//					subscriptionsState = AndroidNetworkUtils.sendRequest(ctx,
+//							"https://osmand.net/api/subscriptions/get",
+//							parameters, "Requesting subscriptions state...", false, false);
+//				}
+//			} catch (Exception e) {
+//				logError("sendRequest Error", e);
+//			}
+//			return new String[] {activeSubscriptionsIds, subscriptionsState};
+			return new String[] {};
 		}
 
 		@Override
@@ -590,8 +592,8 @@ public abstract class InAppPurchaseHelper {
 	}
 
 	public void checkPromoAsync(@Nullable CallbackWithObject<Boolean> listener) {
-		CheckPromoTask task = new CheckPromoTask(listener);
-		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
+//		CheckPromoTask task = new CheckPromoTask(listener);
+//		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
 	}
 
 	@SuppressLint("StaticFieldLeak")

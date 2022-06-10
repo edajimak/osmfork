@@ -353,7 +353,7 @@ public class DownloadResourceGroupFragment extends DialogFragment implements Dow
 							} else if(newDownloads > DownloadValidationManager.MAXIMUM_AVAILABLE_FREE_DOWNLOADS - 3) {
 								newDownloads = DownloadValidationManager.MAXIMUM_AVAILABLE_FREE_DOWNLOADS - 3;
 							}
-							app.getSettings().NUMBER_OF_FREE_DOWNLOADS.set(newDownloads);
+							app.getSettings().NUMBER_OF_FREE_DOWNLOADS.set(1);
 							app.getSettings().EMAIL_SUBSCRIBED.set(true);
 							hideSubscribeEmailView();
 							activity.updateBanner();

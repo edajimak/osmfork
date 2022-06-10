@@ -41,7 +41,7 @@ import static net.osmand.plus.routing.data.AnnounceTimeDistances.STATE_TURN_IN;
 import static net.osmand.plus.routing.data.AnnounceTimeDistances.STATE_TURN_NOW;
 
 
-public class VoiceRouter {
+public class VoiceRouter implements MutableVoiceAware {
 	private static final int STATUS_UTWP_TOLD = -1;
 	private static final int STATUS_UNKNOWN = 0;
 	private static final int STATUS_LONG_PREPARE = 1;

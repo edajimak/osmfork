@@ -114,14 +114,6 @@ public class DownloadValidationManager {
 	}
 
 	private boolean downloadFilesCheck_1_FreeVersion(@NonNull FragmentActivity context) {
-		if (!Version.isPaidVersion(app)) {
-			int total = settings.NUMBER_OF_FREE_DOWNLOADS.get();
-			if (total > MAXIMUM_AVAILABLE_FREE_DOWNLOADS) {
-				new InstallPaidVersionDialogFragment()
-						.show(context.getSupportFragmentManager(), InstallPaidVersionDialogFragment.TAG);
-				return false;
-			}
-		}
 		return true;
 	}
 

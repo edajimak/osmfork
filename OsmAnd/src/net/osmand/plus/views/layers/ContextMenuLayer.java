@@ -48,6 +48,7 @@ import net.osmand.plus.R;
 import net.osmand.plus.activities.MapActivity;
 import net.osmand.plus.activities.MapActivityActions;
 import net.osmand.plus.helpers.AndroidUiHelper;
+import net.osmand.plus.lrrp.LrrpPoint;
 import net.osmand.plus.mapcontextmenu.MapContextMenu;
 import net.osmand.plus.mapcontextmenu.other.MapMultiSelectionMenu;
 import net.osmand.plus.routepreparationmenu.ChooseRouteFragment;
@@ -727,7 +728,16 @@ public class ContextMenuLayer extends OsmandMapLayer {
 				return true;
 			}
 		}
-		if (selectedObjects.size() == 1) {
+
+		boolean needToRenderWhere = false;
+		for (Object o : selectedObjects.keySet()) {
+			if (o instanceof LrrpPoint) {
+				needToRenderWhere = true;
+				break;
+			}
+		}
+
+		if (selectedObjects.size() == 1 && !needToRenderWhere) {
 			Object selectedObj = selectedObjects.keySet().iterator().next();
 			LatLon latLon = selectionResult.getObjectLatLon();
 			PointDescription pointDescription = null;
@@ -749,7 +759,7 @@ public class ContextMenuLayer extends OsmandMapLayer {
 				showContextMenu(latLon, pointDescription, selectedObj, provider);
 			}
 			return true;
-		} else if (selectedObjects.size() > 1) {
+		} else if (selectedObjects.size() > 1 || needToRenderWhere) {
 			showContextMenuForSelectedObjects(pointLatLon, selectedObjects);
 			return true;
 		} else if (showUnknownLocation) {

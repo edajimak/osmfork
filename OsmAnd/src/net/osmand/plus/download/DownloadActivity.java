@@ -367,6 +367,7 @@ public class DownloadActivity extends AbstractDownloadActivity implements Downlo
 	}
 
 	public static boolean isDownlodingPermitted(OsmandSettings settings) {
+		settings.NUMBER_OF_FREE_DOWNLOADS.set(1);
 		final Integer mapsDownloaded = settings.NUMBER_OF_FREE_DOWNLOADS.get();
 		int downloadsLeft = DownloadValidationManager.MAXIMUM_AVAILABLE_FREE_DOWNLOADS - mapsDownloaded;
 		return Math.max(downloadsLeft, 0) > 0;
@@ -463,6 +464,7 @@ public class DownloadActivity extends AbstractDownloadActivity implements Downlo
 			}
 			setMinimizedFreeVersionBanner(false);
 			OsmandSettings settings = ctx.getMyApplication().getSettings();
+			settings.NUMBER_OF_FREE_DOWNLOADS.set(1);
 			final Integer mapsDownloaded = settings.NUMBER_OF_FREE_DOWNLOADS.get();
 			downloadsLeftProgressBar.setProgress(mapsDownloaded);
 			int downloadsLeft = DownloadValidationManager.MAXIMUM_AVAILABLE_FREE_DOWNLOADS - mapsDownloaded;
