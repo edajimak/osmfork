@@ -12,6 +12,7 @@ import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.R;
 import net.osmand.plus.api.AudioFocusHelper;
 import net.osmand.plus.api.AudioFocusHelperImpl;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.routing.VoiceRouter;
 import net.osmand.plus.settings.backend.ApplicationMode;
 import net.osmand.plus.settings.backend.OsmandSettings;
@@ -47,7 +48,7 @@ public abstract class CommandPlayer {
 	protected ApplicationMode applicationMode;
 
 	protected final ScriptableObject jsScope;
-	protected final VoiceRouter voiceRouter;
+	protected final MutableVoiceAware voiceRouter;
 
 	private AudioFocusHelper mAudioFocusHelper;
 
@@ -55,18 +56,17 @@ public abstract class CommandPlayer {
 	protected final String language;
 	protected int streamType;
 
-	@NonNull
 	public static CommandPlayer createCommandPlayer(@NonNull OsmandApplication app,
-	                                                @NonNull ApplicationMode appMode,
-	                                                @NonNull String voiceProvider) throws CommandPlayerException {
-
+													@NonNull ApplicationMode appMode,
+													@NonNull String voiceProvider,
+													MutableVoiceAware voiceRouter) throws CommandPlayerException {
 		File voicesDir = app.getAppPath(IndexConstants.VOICE_INDEX_DIR);
 		File voiceProviderDir = new File(voicesDir, voiceProvider);
 		if (!voiceProviderDir.exists()) {
 			throw new CommandPlayerException(app.getString(R.string.voice_data_unavailable));
 		}
 
-		VoiceRouter voiceRouter = app.getRoutingHelper().getVoiceRouter();
+		voiceRouter = voiceRouter != null ? voiceRouter : app.getRoutingHelper().getVoiceRouter();
 		if (JsTtsCommandPlayer.isMyData(voiceProviderDir)) {
 			return new JsTtsCommandPlayer(app, appMode, voiceRouter, voiceProviderDir);
 		} else if (JsMediaCommandPlayer.isMyData(voiceProviderDir)) {
@@ -77,7 +77,7 @@ public abstract class CommandPlayer {
 
 	protected CommandPlayer(@NonNull OsmandApplication app,
 	                        @NonNull ApplicationMode applicationMode,
-	                        @NonNull VoiceRouter voiceRouter,
+	                        @NonNull MutableVoiceAware voiceRouter,
 	                        @NonNull File voiceProviderDir) throws CommandPlayerException {
 		this.app = app;
 		this.settings = app.getSettings();
@@ -117,6 +117,10 @@ public abstract class CommandPlayer {
 
 	@NonNull
 	public abstract CommandBuilder newCommandBuilder();
+
+	public MutableVoiceAware getCurrentVoiceAware() {
+		return this.voiceRouter;
+	}
 
 	public abstract boolean supportsStructuredStreetNames();
 

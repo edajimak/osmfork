@@ -18,6 +18,12 @@
     <string name="average_speed_widget_desc">Shows the average speed of the current ride.</string>
     <string name="map_widget_average_speed">Average speed</string>
     <string name="lang_sat">Santali</string>
+    <string name="plugin_lrrp_name">Lrrp map</string>
+    <string name="plugin_lrrp_config">Lrrp config info</string>
+    <string name="plugin_lrrp_config_descr">Lrrp config into JSON format</string>
+    <string name="plugin_lrrp_config_title">JSON config</string>
+    <string name="plugin_lrrp_play_title">Active in Background</string>
+    <string name="plugin_lrrp_debug_title">Debug</string>
     <string name="shared_string_mode">Mode</string>
     <string name="time_to_navigation_point_widget_settings_desc">Switch mode by tapping the widget.</string>
     <string name="map_widget_time_to_destination">Time to destination</string>

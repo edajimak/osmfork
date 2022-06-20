@@ -85,6 +85,7 @@ import net.osmand.plus.render.TravelRendererHelper;
 import net.osmand.plus.resources.ResourceManager;
 import net.osmand.plus.routepreparationmenu.RoutingOptionsHelper;
 import net.osmand.plus.routing.AvoidRoadsHelper;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.routing.RoutingHelper;
 import net.osmand.plus.routing.TransportRoutingHelper;
 import net.osmand.plus.search.QuickSearchHelper;
@@ -566,13 +567,19 @@ public class OsmandApplication extends MultiDexApplication {
 		return player;
 	}
 
+	public void initVoiceCommandPlayer(@NonNull Context context, @NonNull ApplicationMode appMode, @Nullable Runnable onCommandPlayerCreated, boolean warnNoProvider, boolean showProgress, boolean forceInitialization, boolean applyAllModes) {
+		initVoiceCommandPlayer(context, appMode, onCommandPlayerCreated, warnNoProvider, showProgress, forceInitialization, applyAllModes, null);
+	}
+
 	public void initVoiceCommandPlayer(@NonNull Context context,
 	                                   @NonNull ApplicationMode appMode,
 	                                   @Nullable Runnable onCommandPlayerCreated,
 	                                   boolean warnNoProvider,
 	                                   boolean showProgress,
 	                                   boolean forceInitialization,
-	                                   boolean applyAllModes) {
+	                                   boolean applyAllModes,
+									   MutableVoiceAware voiceAware
+	) {
 		String voiceProvider = osmandSettings.VOICE_PROVIDER.getModeValue(appMode);
 		if (OsmandSettings.VOICE_PROVIDER_NOT_USE.equals(voiceProvider)) {
 			osmandSettings.VOICE_MUTE.setModeValue(appMode, true);
@@ -583,7 +590,7 @@ public class OsmandApplication extends MultiDexApplication {
 		} else {
 			if (player == null || !voiceProvider.equals(player.getCurrentVoice()) || forceInitialization) {
 				appInitializer.initVoiceDataInDifferentThread(context, appMode, voiceProvider,
-						onCommandPlayerCreated, showProgress);
+						onCommandPlayerCreated, showProgress, voiceAware);
 			}
 		}
 	}

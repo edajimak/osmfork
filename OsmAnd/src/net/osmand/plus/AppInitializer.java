@@ -68,6 +68,7 @@ import net.osmand.plus.render.TravelRendererHelper;
 import net.osmand.plus.resources.ResourceManager;
 import net.osmand.plus.routepreparationmenu.RoutingOptionsHelper;
 import net.osmand.plus.routing.AvoidRoadsHelper;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.routing.RoutingHelper;
 import net.osmand.plus.routing.TransportRoutingHelper;
 import net.osmand.plus.search.QuickSearchHelper;
@@ -585,7 +586,8 @@ public class AppInitializer implements IProgress {
 	                                                        @NonNull final ApplicationMode applicationMode,
 	                                                        @NonNull final String voiceProvider,
 	                                                        @Nullable final Runnable onFinishInitialization,
-	                                                        boolean showProgress) {
+	                                                        boolean showProgress,
+															MutableVoiceAware voiceAware) {
 		String progressTitle = app.getString(R.string.loading_data);
 		String progressMessage = app.getString(R.string.voice_data_initializing);
 		final ProgressDialog progressDialog = showProgress && context instanceof Activity
@@ -597,7 +599,7 @@ public class AppInitializer implements IProgress {
 				if (app.player != null) {
 					app.player.clear();
 				}
-				app.player = CommandPlayer.createCommandPlayer(app, applicationMode, voiceProvider);
+				app.player = CommandPlayer.createCommandPlayer(app, applicationMode, voiceProvider, voiceAware);
 				app.getRoutingHelper().getVoiceRouter().setPlayer(app.player);
 			} catch (CommandPlayerException e) {
 				app.showToastMessage(e.getError());

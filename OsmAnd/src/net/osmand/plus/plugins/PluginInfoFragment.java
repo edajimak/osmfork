@@ -228,7 +228,7 @@ public class PluginInfoFragment extends BaseOsmAndFragment implements PluginStat
 		} else {
 			getButton.setVisibility(View.GONE);
 
-			if (plugin.getSettingsScreenType() == null || !plugin.isActive()) {
+			if (plugin.getSettingsScreenType() == null || (!plugin.isActive() && !plugin.alwaysSettingsEnabled())) {
 				settingsButton.setVisibility(View.GONE);
 			} else {
 				settingsButton.setVisibility(View.VISIBLE);

@@ -19,6 +19,7 @@ public abstract class OsmandNotification {
 	public final static int ERROR_NOTIFICATION_SERVICE_ID = 7;
 	public final static int DOWNLOAD_NOTIFICATION_SERVICE_ID = 8;
 	public final static int CAR_APP_NOTIFICATION_SERVICE_ID = 9;
+	public final static int LRRP_NOTIFICATION_SERVICE_ID = 10;
 	public final static int TOP_NOTIFICATION_SERVICE_ID = 100;
 
 	public final static int WEAR_NAVIGATION_NOTIFICATION_SERVICE_ID = 1005;
@@ -26,6 +27,7 @@ public abstract class OsmandNotification {
 	public final static int WEAR_ERROR_NOTIFICATION_SERVICE_ID = 1007;
 	public final static int WEAR_DOWNLOAD_NOTIFICATION_SERVICE_ID = 1008;
 	public final static int WEAR_CAR_APP_NOTIFICATION_SERVICE_ID = 1009;
+	public final static int WEAR_LRRP_NOTIFICATION_SERVICE_ID = 1010;
 
 	protected OsmandApplication app;
 	protected boolean ongoing = true;
@@ -41,6 +43,7 @@ public abstract class OsmandNotification {
 		NAVIGATION,
 		GPX,
 		GPS,
+		LRRP,
 		ERROR,
 		DOWNLOAD,
 		CAR_APP,

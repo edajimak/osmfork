@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import net.osmand.PlatformUtil;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.api.AudioFocusHelperImpl;
-import net.osmand.plus.routing.VoiceRouter;
+import net.osmand.plus.routing.MutableVoiceAware;
 import net.osmand.plus.settings.backend.ApplicationMode;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +39,7 @@ public class JsMediaCommandPlayer extends CommandPlayer implements OnCompletionL
 
 	protected JsMediaCommandPlayer(@NonNull OsmandApplication app,
 	                               @NonNull ApplicationMode applicationMode,
-	                               @NonNull VoiceRouter voiceRouter,
+	                               @NonNull MutableVoiceAware voiceRouter,
 	                               @NonNull File voiceProviderDir) throws CommandPlayerException {
 		super(app, applicationMode, voiceRouter, voiceProviderDir);
 	}

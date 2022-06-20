@@ -59,6 +59,10 @@ public abstract class CommandBuilder {
 
 	public abstract List<String> execute();
 
+	public void addFromString(String name) {
+		listStruct.add(name);
+	}
+
 	public abstract CommandBuilder goAhead();
 
 	public abstract CommandBuilder goAhead(double dist, StreetName streetName);

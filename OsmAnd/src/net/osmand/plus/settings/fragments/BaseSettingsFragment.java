@@ -56,6 +56,7 @@ import net.osmand.plus.activities.OsmandActionBarActivity;
 import net.osmand.plus.activities.OsmandInAppPurchaseActivity;
 import net.osmand.plus.backup.ui.BackupAuthorizationFragment;
 import net.osmand.plus.helpers.AndroidUiHelper;
+import net.osmand.plus.lrrp.LrrpSettingsFragment;
 import net.osmand.plus.plugins.accessibility.AccessibilitySettingsFragment;
 import net.osmand.plus.plugins.audionotes.MultimediaNotesFragment;
 import net.osmand.plus.plugins.development.DevelopmentSettingsFragment;
@@ -133,6 +134,7 @@ public abstract class BaseSettingsFragment extends PreferenceFragmentCompat impl
 		MAP_DURING_NAVIGATION(MapDuringNavigationFragment.class.getName(), true, ApplyQueryType.SNACK_BAR, R.xml.map_during_navigation, R.layout.profile_preference_toolbar),
 		TURN_SCREEN_ON(TurnScreenOnFragment.class.getName(), true, ApplyQueryType.BOTTOM_SHEET, R.xml.turn_screen_on, R.layout.profile_preference_toolbar),
 		DATA_STORAGE(DataStorageFragment.class.getName(), false, null, R.xml.data_storage, R.layout.global_preference_toolbar),
+		LRRP_SETTINGS(LrrpSettingsFragment.class.getName(), true, ApplyQueryType.SNACK_BAR, R.xml.lrrp_settings, R.layout.profile_preference_toolbar),
 		DIALOGS_AND_NOTIFICATIONS_SETTINGS(DialogsAndNotificationsSettingsFragment.class.getName(), false, null, R.xml.dialogs_and_notifications_preferences, R.layout.global_preference_toolbar),
 		HISTORY_SETTINGS(HistorySettingsFragment.class.getName(), false, null, R.xml.history_preferences, R.layout.global_preference_toolbar),
 		PROFILE_APPEARANCE(ProfileAppearanceFragment.TAG, true, null, R.xml.profile_appearance, R.layout.profile_preference_toolbar),

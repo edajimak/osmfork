@@ -38,6 +38,7 @@ import net.osmand.plus.download.CustomRegion;
 import net.osmand.plus.download.DownloadActivityType;
 import net.osmand.plus.download.DownloadResources;
 import net.osmand.plus.download.IndexItem;
+import net.osmand.plus.lrrp.LrrpOsmandPlugin;
 import net.osmand.plus.mapcontextmenu.MenuBuilder;
 import net.osmand.plus.mapcontextmenu.MenuController;
 import net.osmand.plus.mapcontextmenu.builders.cards.ImageCard.GetImageCardsTask.GetImageCardsListener;
@@ -167,6 +168,10 @@ public abstract class OsmandPlugin {
 
 	public boolean isEnabled() {
 		return enabled;
+	}
+
+	public boolean alwaysSettingsEnabled() {
+		return false;
 	}
 
 	public boolean isLocked() {
@@ -312,6 +317,8 @@ public abstract class OsmandPlugin {
 		checkMarketPlugin(app, new NauticalMapsPlugin(app));
 		checkMarketPlugin(app, new SkiMapsPlugin(app));
 		allPlugins.add(new AudioVideoNotesPlugin(app));
+		allPlugins.add(new LrrpOsmandPlugin(app));
+
 		checkMarketPlugin(app, new ParkingPositionPlugin(app));
 		allPlugins.add(new OsmEditingPlugin(app));
 		allPlugins.add(new OpenPlaceReviewsPlugin(app));
@@ -726,6 +733,7 @@ public abstract class OsmandPlugin {
 				plugins.add(plugin);
 			}
 		}
+
 		return plugins;
 	}
 
@@ -1037,7 +1045,7 @@ public abstract class OsmandPlugin {
 		try {
 			installed = ctx.getPackageManager().getPackageInfo(packageInfo, 0) != null;
 		} catch (NameNotFoundException e) {
-			LOG.error("Package not found: " + packageInfo, e);
+			LOG.info("Package not found: " + packageInfo, e);
 		}
 		return installed;
 	}

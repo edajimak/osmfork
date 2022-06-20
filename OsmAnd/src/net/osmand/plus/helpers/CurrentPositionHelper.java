@@ -261,6 +261,7 @@ public class CurrentPositionHelper {
 
 	private void justifyResult(List<GeocodingResult> res, final ResultMatcher<GeocodingResult> result) {
 		List<GeocodingResult> complete = new ArrayList<>();
+		List<GeocodingResult> complete2 = new ArrayList<>();
 		double minBuildingDistance = 0;
 		if (res != null) {
 			List<BinaryMapIndexReader> readers = new ArrayList<>();
@@ -308,7 +309,10 @@ public class CurrentPositionHelper {
 			}
 			utilities.filterDuplicateRegionResults(complete);
 			try {
-				utilities.sortGeocodingResults(readers, complete);
+				complete2 = utilities.sortGeocodingResults(readers, complete);
+				if (complete2.size() > 0) {
+					complete = complete2;
+				}
 			} catch (IOException e) {
 				log.error("Exception happened during sorting for reverse geocoding", e);
 			}
