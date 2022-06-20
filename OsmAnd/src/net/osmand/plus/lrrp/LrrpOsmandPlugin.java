@@ -25,7 +25,6 @@ import net.osmand.plus.voice.CommandPlayer;
 public class LrrpOsmandPlugin extends OsmandPlugin implements MutableVoiceAware, StateChangedListener<Boolean> {
 
     public static final String ID = "lrrp.plugin";
-    //private MapActivity mapActivity;
     private MapLpprLayer mapLayer;
     private final LrrpRequestHelper lrrpRequestHelper;
 
@@ -58,8 +57,6 @@ public class LrrpOsmandPlugin extends OsmandPlugin implements MutableVoiceAware,
     @Override
     public boolean init(@NonNull final OsmandApplication app, Activity activity) {
         super.init(app, activity);
-        lrrpRequestHelper.triggerLrrpLocation(null);
-
         return true;
     }
 
@@ -128,6 +125,8 @@ public class LrrpOsmandPlugin extends OsmandPlugin implements MutableVoiceAware,
 
         LRRP_CONNECTION_PLAY.addListener(this);
         LRRP_CONNECTION_CONFIG.addListener(lrrpRequestHelper);
+
+        lrrpRequestHelper.triggerLrrpLocation(null);
     }
 
     @Override
@@ -167,6 +166,11 @@ public class LrrpOsmandPlugin extends OsmandPlugin implements MutableVoiceAware,
     @Override
     public BaseSettingsFragment.SettingsScreenType getSettingsScreenType() {
         return BaseSettingsFragment.SettingsScreenType.LRRP_SETTINGS;
+    }
+
+    @Override
+    public boolean alwaysSettingsEnabled() {
+        return true;
     }
 
     @Override

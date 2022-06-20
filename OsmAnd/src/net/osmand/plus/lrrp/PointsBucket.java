@@ -30,6 +30,7 @@ public class PointsBucket {
 
         point.setSpeed(getSpeed(point));
 
+        point.bucket = this;
         points.add(point);
     }
 

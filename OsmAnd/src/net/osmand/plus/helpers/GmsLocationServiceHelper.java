@@ -54,7 +54,7 @@ public class GmsLocationServiceHelper extends LocationServiceHelper {
 				// IMPORTANT NOTE: Apps running on Android 8.0 and higher devices (regardless of
 				// targetSdkVersion) may receive updates less frequently than this interval when the app
 				// is no longer in the foreground.
-				.setInterval(100)
+				.setInterval(500)
 
 				// Sets the fastest rate for active location updates. This interval is exact, and your
 				// application will never receive updates more frequently than this value.

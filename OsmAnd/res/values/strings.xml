@@ -22,7 +22,7 @@
     <string name="plugin_lrrp_config">Lrrp config info</string>
     <string name="plugin_lrrp_config_descr">Lrrp config into JSON format</string>
     <string name="plugin_lrrp_config_title">JSON config</string>
-    <string name="plugin_lrrp_play_title">Sound notification</string>
+    <string name="plugin_lrrp_play_title">Active in Background</string>
     <string name="plugin_lrrp_debug_title">Debug</string>
     <string name="shared_string_mode">Mode</string>
     <string name="time_to_navigation_point_widget_settings_desc">Switch mode by tapping the widget.</string>

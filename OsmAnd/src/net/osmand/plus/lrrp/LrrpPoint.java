@@ -20,10 +20,12 @@ public class LrrpPoint implements LocationPoint {
     public int virtualFrom = 0;
     public double mSpeed;
     public int mCC = 0;
+    public boolean call = false;
     public boolean isShort = false;
     public boolean isHeadPoint = true;
     public PointDescription mPointDescription;
     public double dist = 0;
+    public PointsBucket bucket;
 
     public LrrpPoint(double latitude, double longitude, int from, int group, int time) {
         this.latitude = latitude;
@@ -54,6 +56,15 @@ public class LrrpPoint implements LocationPoint {
 
     public boolean isHeadPoint() {
         return isHeadPoint;
+    }
+
+    public String getStreetName()
+    {
+        if (bucket != null) {
+            return bucket.getStreetName();
+        }
+
+        return null;
     }
 
     public void setHeadPoint(boolean headPoint) {

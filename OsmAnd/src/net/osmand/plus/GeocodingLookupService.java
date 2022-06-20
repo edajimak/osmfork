@@ -166,7 +166,7 @@ public class GeocodingLookupService {
 							result = geocodingResult;
 
 							double relevantDistance = object.getDistance();
-							if (!Algorithms.isEmpty(result) && relevantDistance > 100) {
+							if (!Algorithms.isEmpty(result) && relevantDistance > 250) {
 								result = app.getString(R.string.shared_string_near) + " " + result;
 							}
 						}

@@ -16,6 +16,7 @@ public class LrrpRequestConfig {
 
     public int audioStreamType = 3; //AudioManager.STREAM_MUSIC
     public int audioStreamVolume = 0;
+    public int audioStreamVolumeType = -1;
 
     public long active;
     public boolean speakStreet = true;

@@ -15,6 +15,8 @@ import net.osmand.StateChangedListener;
 import net.osmand.binary.BinaryMapIndexReader;
 import net.osmand.binary.GeocodingUtilities;
 import net.osmand.binary.GeocodingUtilities.GeocodingResult;
+import net.osmand.data.LatLon;
+import net.osmand.plus.GeocodingLookupService;
 import net.osmand.plus.OsmandApplication;
 import net.osmand.plus.api.AudioFocusHelper;
 import net.osmand.plus.api.AudioFocusHelperImpl;
@@ -50,6 +52,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -83,6 +86,8 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
     private String lastHash;
     private long startTime;
+    private long ptsRenderTime;
+
     private LrrpPoint minDistPoint;
     private LrrpRequestConfig config;
 
@@ -92,6 +97,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
     private String notificationTitle = null;
     private String notificationDescription = null;
+    private GeocodingLookupService.AddressLookupRequest currentLookupRequest;
 
     private final String[] ttcDirections = new String[] {
             "north", "northeast",
@@ -218,7 +224,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
                     playRoutes();
                     processMbeEvents();
                     resolveGeocoding();
-                    SystemClock.sleep(1000);
+                    SystemClock.sleep(850);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                     SystemClock.sleep(2500);
@@ -276,14 +282,44 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
         mCallDuplicate.put(hash, event.unix);
         byte[] generated = wavSynthesizer.convertMbeToWav(event.frames);
-        notificationTitle = "CALL TG:" + event.tg + " FM:" + event.from;
-        notificationDescription = "delay: " + (System.currentTimeMillis()/1000 - event.unix) + " sec.";
+        // Skip empty record
+        if (wavSynthesizer.getLastGain() > 200) {
+            return;
+        }
+
+        notificationTitle = "CALL:" + event.tg + " FM:" + event.from;
+        notificationDescription = "del: " + (System.currentTimeMillis()/1000 - event.unix) + " sec.";
+
+        if (null != currentLookupRequest) {
+            app.getGeocodingLookupService().cancel(currentLookupRequest);
+        }
+
+        if (event.point != null) {
+            LatLon cood = new LatLon(event.point.getLatitude(), event.point.getLongitude());
+            currentLookupRequest = new GeocodingLookupService.AddressLookupRequest(cood,
+                    new GeocodingLookupService.OnAddressLookupResult() {
+                        @Override
+                        public void geocodingDone(String address) {
+                            notificationDescription = address;
+                            app.getNotificationHelper().refreshNotification(OsmandNotification.NotificationType.LRRP);
+                            ptsRenderTime = System.currentTimeMillis();
+                            currentLookupRequest = null;
+                            notificationDescription = null;
+                            notificationTitle = null;
+                        }
+                    }, null);
+            app.getGeocodingLookupService().lookupAddress(currentLookupRequest);
+        }
+
         app.getNotificationHelper().refreshNotification(OsmandNotification.NotificationType.LRRP);
 
         playWavSound(generated);
+        if (null == event.point) {
+            notificationDescription = null;
+            notificationTitle = null;
+        }
 
-        notificationTitle = null;
-        notificationDescription = null;
+        ptsRenderTime = System.currentTimeMillis();
     }
 
     private synchronized void playWavSound(byte[] generated)
@@ -293,6 +329,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         AudioManager audioManager = (AudioManager) app.getSystemService(Context.AUDIO_SERVICE);
 
         int prevVolume = -1;
+        int prevVolumeForType = -1;
         if (null != audioFocus) {
             ApplicationMode mode = app.getSettings().DEFAULT_APPLICATION_MODE.get();
             boolean res = audioFocus.requestAudFocus(app, mode, 3);
@@ -303,6 +340,12 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
             if (config.audioStreamVolume > 0) {
                 prevVolume = audioManager.getStreamVolume(config.audioStreamType);
                 audioManager.setStreamVolume(config.audioStreamType, config.audioStreamVolume, 0);
+
+                if (config.audioStreamVolumeType > 0 && config.audioStreamType != config.audioStreamVolumeType) {
+                    SystemClock.sleep(250);
+                    prevVolumeForType = audioManager.getStreamVolume(config.audioStreamVolumeType);
+                    audioManager.setStreamVolume(config.audioStreamVolumeType, config.audioStreamVolume, 0);
+                }
             }
         }
 
@@ -320,6 +363,9 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         while (pos < generated.length / 2 && System.currentTimeMillis() - startTime < duration + 500) {
             pos = audioTrack.getPlaybackHeadPosition();
             SystemClock.sleep(100);
+            if (!isMonitoringEnabled()) {
+                break;
+            }
         }
 
         audioTrack.stop();
@@ -327,8 +373,12 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         if (prevVolume != -1) {
             audioManager.setStreamVolume(config.audioStreamType, prevVolume, 0);
         }
+        if (prevVolumeForType != -1) {
+            audioManager.setStreamVolume(config.audioStreamVolumeType, prevVolumeForType, 0);
+        }
 
         if (reqFocus > 0 && null != audioFocus) {
+            SystemClock.sleep(125);
             ApplicationMode mode = app.getSettings().DEFAULT_APPLICATION_MODE.get();
             audioFocus.abandonAudFocus(app, mode, 3);
             reqFocus--;
@@ -368,7 +418,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
 
     private void playRoutes() {
         CommandPlayer player = plugin.getPlayer();
-        if (null == player) {
+        if (null == player || lastLocation == null) {
             return;
         }
 
@@ -376,6 +426,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         LrrpRequestConfig config = getConfig();
         List<String> commands = new ArrayList<>();
         double minDist = 10000;
+        long current = System.currentTimeMillis();
 
         for (PointsBucket pts : plugin.getPoints().toArray()) {
             if (pts.getLast() == null || pts.getLast().isExpire()) {
@@ -432,6 +483,25 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         }
         if (array.size() > 0) {
             cb.play();
+        }
+
+        if (current - ptsRenderTime > 20000) {
+            ptsRenderTime = current;
+            LrrpPoint p = getMinDist();
+            if (null != p) {
+                double deg = p.bearingDeg(lastLocation.getLatitude(), lastLocation.getLongitude());
+                int idx = (int) Math.round(deg/45.0);
+                String dir = ttcDirections[idx];
+
+                this.notificationTitle = (p.tg > 0 ? "TG:" + p.tg + " " : "")
+                        + " DST:" + Math.round(p.dist/10) * 10 + " m"
+                        + " AGE: " + p.getAge() + " s"
+                        + " " + dir.toUpperCase(Locale.ROOT);
+
+                this.notificationDescription = p.getStreetName();
+            }
+
+            app.getNotificationHelper().refreshNotification(OsmandNotification.NotificationType.LRRP);
         }
     }
 
@@ -563,6 +633,15 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
                 + ((payload[2] & 0xFF) << 8) + (payload[3] & 0xFF);
         event.tg = ((payload[4] & 0xFF) << 8) + (payload[5] & 0xFF);
         event.from = ((payload[7] & 0xFF) << 16) + ((payload[8] & 0xFF) << 8) + (payload[9] & 0xFF);
+
+        if (payload[30] == ((byte) 0xFF)) {
+            long lat = ((payload[31] & 0xFFL) << 24) + ((payload[32] & 0xFF) << 16)
+                    + ((payload[33] & 0xFF) << 8) + (payload[34] & 0xFF);
+            long lon = ((payload[35] & 0xFFL) << 24) + ((payload[36] & 0xFF) << 16)
+                    + ((payload[37] & 0xFF) << 8) + (payload[38] & 0xFF);
+            event.point = new LrrpPoint(lat, lon);
+        }
+
         byte[] buffer = new byte[7];
 
         int read = 0;
@@ -595,13 +674,15 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         point.time = ((payload[0] & 0xFF) << 24) + ((payload[1] & 0xFF) << 16)
                 + ((payload[2] & 0xFF) << 8) + (payload[3] & 0xFF);
         if (payload[4] != 0) {
-            point.mCC = payload[4] & 0xFF;
+            point.mCC = payload[4] & 0x0F;
+            point.call = (payload[4] & 0x80) != 0;
         }
 
         point.from = ((payload[7] & 0xFF) << 16) + ((payload[8] & 0xFF) << 8)
                 + (payload[9] & 0xFF);
         point.tg = ((payload[5] & 0xFF) << 8) + (payload[6] & 0xFF);
         point.resolvedFrom = point.from;
+
         if (point.from <= 0 || point.mCC > 0) {
             point.isShort = true;
             point.from = point.calculateCRC(0, 0);
@@ -732,6 +813,11 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
         return trans.trans();
     }
 
+    private String getStreetName(double lat, double lon) {
+        List<GeocodingResult> results = reverseGeocoding(lat, lon);
+        return getStreetName(results, 1);
+    }
+
     private String getStreetName(List<GeocodingResult> result, int matchCount) {
         if (null == result || result.size() == 0) {
             return null;
@@ -835,6 +921,9 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
             if (c.has("audioStreamVolume")) {
                 conf.audioStreamVolume = c.getInt("audioStreamVolume");
             }
+            if (c.has("audioStreamVolumeType")) {
+                conf.audioStreamVolumeType = c.getInt("audioStreamVolumeType");
+            }
             if (c.has("audioStreamType")) {
                 conf.audioStreamType = c.getInt("audioStreamType");
             }
@@ -889,6 +978,10 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
     }
 
     private List<GeocodingResult> reverseGeocoding(double lat, double lon) {
+        return reverseGeocoding(lat, lon, ResourceManager.BinaryMapReaderResourceType.STREET_LOOKUP);
+    }
+
+    private List<GeocodingResult> reverseGeocoding(double lat, double lon, ResourceManager.BinaryMapReaderResourceType type) {
         List<BinaryMapReaderResource> checkReaders = checkReaders(lat, lon, usedReaders);
         if (defCtx == null || checkReaders != usedReaders) {
             //initCtx(app, checkReaders, app.getSettings().getApplicationMode());
@@ -896,7 +989,7 @@ public class LrrpRequestHelper implements StateChangedListener<String> {
             if (rs.length > 0) {
                 int i = 0;
                 for (BinaryMapReaderResource rep : checkReaders) {
-                    rs[i++] = rep.getReader(ResourceManager.BinaryMapReaderResourceType.STREET_LOOKUP);
+                    rs[i++] = rep.getReader(type);
                 }
                 RoutingConfiguration.RoutingMemoryLimits memoryLimits = new RoutingConfiguration.RoutingMemoryLimits(10, 10);
                 RoutingConfiguration defCfg = app.getDefaultRoutingConfig().build("geocoding", memoryLimits,

@@ -1,6 +1,10 @@
 package net.osmand.plus.lrrp;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.BigTextStyle;
@@ -17,6 +21,9 @@ import static net.osmand.plus.NavigationService.USED_BY_LRRP;
 
 public class LrrpNotification extends OsmandNotification {
 	public final static String GROUP_NAME = "LRRP";
+	public final static String LRRP_PAUSE_PLUGIN_ACTION = "LRRP_PAUSE_PLUGIN_ACTION";
+	public final static String LRRP_DELETE_PLUGIN_ACTION = "LRRP_DELETE_PLUGIN_ACTION";
+	public final static String LRRP_REPLAY_PLUGIN_ACTION = "LRRP_REPLAY_PLUGIN_ACTION";
 
 	private boolean wasNoDataDismissed;
 	private boolean lastBuiltNoData;
@@ -27,7 +34,16 @@ public class LrrpNotification extends OsmandNotification {
 
 	@Override
 	public void init() {
-
+		app.registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				final LrrpOsmandPlugin plugin = OsmandPlugin.getActivePlugin(LrrpOsmandPlugin.class);
+				if (plugin != null) {
+					OsmandPlugin.enablePlugin(null, app, plugin, false);
+					plugin.disable(app);
+				}
+			}
+		}, new IntentFilter(LRRP_DELETE_PLUGIN_ACTION));
 	}
 
 	@Override
@@ -88,7 +104,7 @@ public class LrrpNotification extends OsmandNotification {
 			long currentTime = System.currentTimeMillis()/1000;
 			long delay = currentTime - helper.getWsClientTimeout();
 			if (delay < 60) {
-				notificationText = "del. -" + delay + " s.";
+				notificationText = "del. " + delay + " s.";
 			}
 
 			LrrpPoint point = helper.getMinDist();
@@ -104,10 +120,14 @@ public class LrrpNotification extends OsmandNotification {
 			}
 		}
 
+		Intent intent = new Intent(LRRP_DELETE_PLUGIN_ACTION);
+		PendingIntent delIntent = PendingIntent.getBroadcast(app, 0, intent, 0);
 
 		final Builder notificationBuilder = createBuilder(wearable)
 				.setContentTitle(notificationTitle)
-				.setStyle(new BigTextStyle().bigText(notificationText));
+				.setDeleteIntent(delIntent)
+				.setStyle(new BigTextStyle().bigText(notificationText))
+				.setContentText(notificationText);
 
 		return notificationBuilder;
 	}

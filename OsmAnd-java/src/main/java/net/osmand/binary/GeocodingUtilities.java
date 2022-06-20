@@ -48,7 +48,7 @@ public class GeocodingUtilities {
 	public static final float DISTANCE_STREET_FROM_CLOSEST_WITH_SAME_NAME = 1000;
 
 	public static final float THRESHOLD_MULTIPLIER_SKIP_BUILDINGS_AFTER = 1.5f;
-	public static final float DISTANCE_BUILDING_PROXIMITY = 100;
+	public static final float DISTANCE_BUILDING_PROXIMITY = 200;
 
 
 	public static final Comparator<GeocodingResult> DISTANCE_COMPARATOR = new Comparator<GeocodingResult>() {
@@ -370,7 +370,8 @@ public class GeocodingUtilities {
 			GeocodingResult street) throws IOException {
 		final List<GeocodingResult> streetBuildings = new ArrayList<GeocodingResult>();
 		reader.preloadBuildings(street.street, null);
-		log.info("Preload buildings " + street.street.getName() + " " + street.city.getName() + " " + street.street.getId());
+		log.info("Preload buildings " + street.street.getName() + " " + street.city.getName() + " count:" + street.street.getBuildings().size());
+		double distCoff = 2;
 		for (Building b : street.street.getBuildings()) {
 			if (b.getLatLon2() != null) {
 				double slat = b.getLocation().getLatitude();
@@ -381,7 +382,7 @@ public class GeocodingUtilities {
 						slat, slon, tolat, tolon);
 				double plat = slat + (tolat - slat) * coeff;
 				double plon = slon + (tolon - slon) * coeff;
-				if (MapUtils.getDistance(road.searchPoint, plat, plon) < DISTANCE_BUILDING_PROXIMITY) {
+				if (MapUtils.getDistance(road.searchPoint, plat, plon) < DISTANCE_BUILDING_PROXIMITY * distCoff) {
 					GeocodingResult bld = new GeocodingResult(street);
 					bld.building = b;
 					//bld.connectionPoint = b.getLocation();
@@ -393,17 +394,23 @@ public class GeocodingUtilities {
 					}
 				}
 
-			} else if (MapUtils.getDistance(b.getLocation(), road.searchPoint) < DISTANCE_BUILDING_PROXIMITY) {
+			} else if (MapUtils.getDistance(b.getLocation(), road.searchPoint) < DISTANCE_BUILDING_PROXIMITY * distCoff) {
 				GeocodingResult bld = new GeocodingResult(street);
 				bld.building = b;
 				bld.connectionPoint = b.getLocation();
 				streetBuildings.add(bld);
 			}
+
+			if (streetBuildings.size() > 2) {
+				distCoff = 1;
+			} else if (streetBuildings.size() == 1) {
+				distCoff = 1.5;
+			}
 		}
 		return streetBuildings;
 	}
 
-	public List<GeocodingResult> sortGeocodingResults(List<BinaryMapIndexReader> list, List<GeocodingResult> res) throws IOException {
+		public List<GeocodingResult> sortGeocodingResults(List<BinaryMapIndexReader> list, List<GeocodingResult> res) throws IOException {
 		List<GeocodingResult> complete = new ArrayList<GeocodingUtilities.GeocodingResult>();
 		double minBuildingDistance = 0;
 		for (GeocodingResult r : res) {
@@ -437,16 +444,30 @@ public class GeocodingUtilities {
 		}
 		filterDuplicateRegionResults(complete);
 		Iterator<GeocodingResult> it = complete.iterator();
+		boolean hasBuilding = false;
 		while (it.hasNext()) {
 			GeocodingResult r = it.next();
-			if (r.building != null && r.getDistance() > minBuildingDistance
+			if (r.building != null && hasBuilding && r.getDistance() > minBuildingDistance
 					* GeocodingUtilities.THRESHOLD_MULTIPLIER_SKIP_BUILDINGS_AFTER) {
 				it.remove();
+				continue;
+			}
+
+			if (r.building != null) {
+				hasBuilding = true;
 			}
 		}
+
 		Collections.sort(complete, new Comparator<GeocodingResult>() {
 			@Override
 			public int compare(GeocodingResult o1, GeocodingResult o2) {
+				if (o1.building != null && o2.building == null) {
+					return -1;
+				}
+				if (o1.building == null && o2.building != null) {
+					return 1;
+				}
+
 				return Double.compare(o1.getDistance(), o2.getDistance());
 			}
 		});
